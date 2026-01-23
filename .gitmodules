@@ -1,6 +1,12 @@
 [submodule "markmapper"]
-	path = markmapper
+	path = reference/markmapper
 	url = https://github.com/laquereric/markmapper.git
 [submodule "marklogic12"]
-	path = marklogic12
+	path = reference/marklogic12
 	url = https://github.com/laquereric/marklogic12.git
+[submodule "reference/roxy"]
+	path = reference/roxy
+	url = https://github.com/laquereric/roxy.git
+[submodule "vendor/marklogic-core"]
+	path = vendor/marklogic-core
+	url = https://github.com/laquereric/marklogic-core.git
