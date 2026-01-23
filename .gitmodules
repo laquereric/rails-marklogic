@@ -1,0 +1,6 @@
+[submodule "markmapper"]
+	path = markmapper
+	url = https://github.com/laquereric/markmapper.git
+[submodule "marklogic12"]
+	path = marklogic12
+	url = https://github.com/laquereric/marklogic12.git
