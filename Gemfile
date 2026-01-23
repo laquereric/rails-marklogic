@@ -34,6 +34,11 @@ gem "bootsnap", require: false
 # MarkLogic core client (local submodule)
 gem "marklogic-core", path: "vendor/marklogic-core"
 
+gem "httpclient"
+
+# LLM integration (OpenAI-compatible)
+gem "ruby-openai"
+
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
 
