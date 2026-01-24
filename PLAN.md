@@ -1,7 +1,7 @@
-# Rails–MarkLogic Tutorial Platform Plan
+# Rails–MarkLogic Platform Plan
 
 ## 1. Purpose & Audience
-This repository provides a **developer-focused, local-only tutorial platform** for learning MarkLogic using a Rails application as a presentation and orchestration layer.
+This repository provides a **developer-focused, local-only platform** for working with MarkLogic using a Rails application as a presentation and orchestration layer.
 
 Rails is not a database abstraction for MarkLogic. MarkLogic remains authoritative.
 
@@ -59,49 +59,6 @@ Current baseline: **0.1.0**
 - Service objects only
 - No ActiveRecord adapters
 
-### Phase 4 — Progressive Tutorials
-- XML
-- XPath
-- XQuery (writes included)
-- XSLT
-- JavaScript
-- Optic
-- REST API
-- Gradle
-- Flux
-- MarkLogic Pre 9 features
-- New MarkLogic 9 features
-- New MarkLogic 10 features
-- New MarkLogic 11 features
-- New MarkLogic 12 features
-
-### Phase 5 — Native Tool Embedding
-- iframe Admin UI
-- iframe Query Console
-- iframe Metrics
-
-### Phase 6 — Roxy Tutorial
-- What Roxy is
-- Project structure
-- Deploying configs
-- Resetting environments
-
-### Phase 6A — Gradle Tutorial
-- Using Gradle with MarkLogic
-- Gradle vs Roxy (historical and modern usage)
-- Running MarkLogic tasks via Gradle
-- When to choose Gradle in Java-centric stacks
-- Conceptual integration with MarkLogic REST and Manage APIs
-
-### Phase 7 — DataHub Tutorial
-- DataHub overview and terminology
-- DataHub architecture (ingest, harmonize, curate)
-- Entity and flow concepts
-- Running DataHub in a MarkLogic environment
-- Relationship to REST, Optic, and Search APIs
-- When (and when not) to use DataHub
-- Conceptual only (no lifecycle management from Rails)
-
 ## 6. RESET ALL Contract
 RESET ALL must:
 - Clear content databases
@@ -120,5 +77,5 @@ RESET ALL must:
 - Fresh clone works
 - Submodules initialize cleanly
 - MarkLogic runs locally
-- Tutorials execute real queries
+- Core examples execute real queries
 - RESET ALL works reliably
