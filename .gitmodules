@@ -16,3 +16,6 @@
 [submodule "vendor/leann-gem"]
 	path = vendor/leann-gem
 	url = https://github.com/laquereric/leann-gem.git
+[submodule "vendor/rails-marklogic-tutorial"]
+	path = vendor/rails-marklogic-tutorial
+	url = https://github.com/laquereric/rails-marklogic-tutorial
