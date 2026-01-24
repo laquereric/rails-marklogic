@@ -1,0 +1,4 @@
+<h2>Document Content</h2>
+<pre><%= @content %></pre>
+
+<%= llm_panel(:summarize_result, tutorial: 'core', topic: 'get_document', result: @content) %>

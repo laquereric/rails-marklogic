@@ -14,14 +14,20 @@ class MarklogicController < ApplicationController
   def get_document
     service = MarklogicService.new
     uri = params.require(:uri)
-    content = service.get_document(uri)
-    render plain: content
+    @content = service.get_document(uri)
+    respond_to do |format|
+      format.text { render plain: @content }
+      format.html
+    end
   end
 
   def eval_xquery
     service = MarklogicService.new
     xquery = params.require(:xquery)
-    result = service.eval_xquery(xquery)
-    render plain: result
+    @result = service.eval_xquery(xquery)
+    respond_to do |format|
+      format.text { render plain: @result }
+      format.html
+    end
   end
 end
