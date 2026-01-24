@@ -93,9 +93,14 @@ Current baseline: **0.1.0**
 - When to choose Gradle in Java-centric stacks
 - Conceptual integration with MarkLogic REST and Manage APIs
 
-### Phase 7 — DataHub Overview
-- Conceptual only
-- Architecture and fit
+### Phase 7 — DataHub Tutorial
+- DataHub overview and terminology
+- DataHub architecture (ingest, harmonize, curate)
+- Entity and flow concepts
+- Running DataHub in a MarkLogic environment
+- Relationship to REST, Optic, and Search APIs
+- When (and when not) to use DataHub
+- Conceptual only (no lifecycle management from Rails)
 
 ## 6. RESET ALL Contract
 RESET ALL must:
