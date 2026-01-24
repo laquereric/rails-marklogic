@@ -1,0 +1,9 @@
+<h1>MCP Tools</h1>
+<ul>
+  <% @tools.each do |tool| %>
+    <li>
+      <%= link_to tool['name'], tool_path(tool['name']) %><br>
+      <small><%= tool['description'] %></small>
+    </li>
+  <% end %>
+</ul>

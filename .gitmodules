@@ -10,3 +10,6 @@
 [submodule "vendor/marklogic-core"]
 	path = vendor/marklogic-core
 	url = https://github.com/laquereric/marklogic-core.git
+[submodule "references/vector-mcp"]
+	path = references/vector-mcp
+	url = https://github.com/laquereric/vector-mcp.git

@@ -1,0 +1,23 @@
+<h1><%= @tool.name %></h1>
+<p><%= @tool.description %></p>
+
+<h2>Input Schema</h2>
+<pre><%= JSON.pretty_generate(@tool.schema) %></pre>
+
+<% if Rails.env.development? %>
+  <h2>Execute (Development Only)</h2>
+  <%= form_with url: execute_tool_path(@tool.name), method: :post do %>
+    <% (@tool.schema["properties"] || {}).each do |name, spec| %>
+      <div>
+        <label><%= name %></label><br>
+        <input name="args[<%= name %>]" placeholder="<%= spec['type'] %>" />
+      </div>
+    <% end %>
+    <button type="submit">Run</button>
+  <% end %>
+<% end %>
+
+<% if @result %>
+  <h2>Result</h2>
+  <pre><%= JSON.pretty_generate(@result) %></pre>
+<% end %>

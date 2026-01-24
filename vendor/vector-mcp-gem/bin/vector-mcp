@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "vector_mcp"
+
+exit VectorMCP.run(*ARGV) ? 0 : 1
