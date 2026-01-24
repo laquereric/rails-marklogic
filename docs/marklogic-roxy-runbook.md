@@ -16,4 +16,17 @@ Roxy is restricted to **modules-only deployments**.
 All deployments occur via GitHub Actions.
 
 ## Patch Upgrades
-Re-deploy modules after each ML12 patch and validate REST endpoints.
+
+### Run Patch Gate (Prod)
+1. Apply MarkLogic patch
+2. Trigger **MarkLogic Patch Gate (Prod)** workflow manually
+3. Confirm all REST, Optic, and Data Hub checks pass
+4. Reopen traffic
+
+### Rollback
+- If Patch Gate fails, rollback the MarkLogic patch
+- Do **not** change Roxy or redeploy infrastructure
+
+### GitHub Protections
+- `prod` environment must require manual approval
+- Restrict secrets to `prod` environment only

@@ -1,0 +1,27 @@
+name: MarkLogic Patch Gate (Prod)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch-gate:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Ensure jq available (self-hosted safe)
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+
+      - name: Run MarkLogic smoke and validation tests
+        env:
+          ML_REST_BASE: ${{ secrets.ML_REST_BASE }}
+          ML_ENV: prod
+          ML_REST_SMOKE_RESOURCE: ${{ secrets.ML_REST_SMOKE_RESOURCE }}
+        run: |
+          chmod +x script/marklogic_smoke_test.sh
+          script/marklogic_smoke_test.sh
