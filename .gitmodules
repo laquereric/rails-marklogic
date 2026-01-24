@@ -19,3 +19,9 @@
 [submodule "vendor/rails-marklogic-tutorial"]
 	path = vendor/rails-marklogic-tutorial
 	url = https://github.com/laquereric/rails-marklogic-tutorial
+[submodule "vendor/mcp-interchange"]
+	path = vendor/mcp-interchange
+	url = https://github.com/laquereric/mcp_interchange.git
+[submodule "vendor/mcp-personality"]
+	path = vendor/mcp-personality
+	url = https://github.com/laquereric/mcp-personality.git

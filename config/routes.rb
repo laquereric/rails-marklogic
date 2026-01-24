@@ -11,4 +11,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  post "/marklogic/documents", to: "marklogic#put_document"
+  get  "/marklogic/documents", to: "marklogic#get_document"
+  post "/marklogic/xquery",   to: "marklogic#eval_xquery"
 end
