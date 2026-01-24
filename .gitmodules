@@ -13,3 +13,6 @@
 [submodule "references/vector-mcp"]
 	path = references/vector-mcp
 	url = https://github.com/laquereric/vector-mcp.git
+[submodule "vendor/leann-gem"]
+	path = vendor/leann-gem
+	url = https://github.com/laquereric/leann-gem.git
