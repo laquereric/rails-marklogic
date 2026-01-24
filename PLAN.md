@@ -67,6 +67,13 @@ Current baseline: **0.1.0**
 - JavaScript
 - Optic
 - REST API
+- Gradle
+- Flux
+- MarkLogic Pre 9 features
+- New MarkLogic 9 features
+- New MarkLogic 10 features
+- New MarkLogic 11 features
+- New MarkLogic 12 features
 
 ### Phase 5 — Native Tool Embedding
 - iframe Admin UI
@@ -78,6 +85,13 @@ Current baseline: **0.1.0**
 - Project structure
 - Deploying configs
 - Resetting environments
+
+### Phase 6A — Gradle Tutorial
+- Using Gradle with MarkLogic
+- Gradle vs Roxy (historical and modern usage)
+- Running MarkLogic tasks via Gradle
+- When to choose Gradle in Java-centric stacks
+- Conceptual integration with MarkLogic REST and Manage APIs
 
 ### Phase 7 — DataHub Overview
 - Conceptual only
