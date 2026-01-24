@@ -1,0 +1,42 @@
+name: MarkLogic Modules Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Guardrail – forbid infra Roxy commands
+        run: |
+          if rg "deploy all|deploy databases|deploy servers|bootstrap"; then
+            echo "Forbidden Roxy command detected" >&2
+            exit 1
+          fi
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Deploy MarkLogic modules (Roxy)
+        env:
+          ML_HOST: ${{ secrets.ML_HOST }}
+          ML_USERNAME: ${{ secrets.ML_USERNAME }}
+          ML_PASSWORD: ${{ secrets.ML_PASSWORD }}
+        run: |
+          bundle exec ml deploy modules
+
+      - name: Smoke tests (REST + Optic + Data Hub)
+        env:
+          ML_REST_BASE: ${{ secrets.ML_REST_BASE }}
+          ML_REST_SMOKE_RESOURCE: ${{ secrets.ML_REST_SMOKE_RESOURCE }}
+          ML_ENV: ${{ secrets.ML_ENV }}
+        run: |
+          chmod +x script/marklogic_smoke_test.sh
+          script/marklogic_smoke_test.sh
