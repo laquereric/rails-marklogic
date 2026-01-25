@@ -28,3 +28,6 @@
 [submodule "vendor/domain_knowledge"]
 	path = vendor/domain_knowledge
 	url = https://github.com/laquereric/domain_knowledge.git
+[submodule "vendor/knowledge_artifacts"]
+	path = vendor/knowledge_artifacts
+	url = ./vendor/knowledge_artifacts
