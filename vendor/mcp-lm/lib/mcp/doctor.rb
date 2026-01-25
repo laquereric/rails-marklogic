@@ -2,8 +2,20 @@ require "securerandom"
 
 module Mcp
   class Doctor
-    def self.run(context: {})
-      new.run(context:)
+    def self.capabilities
+      {
+        "audit_logging" => true,
+        "kill_switch" => true,
+        "local_llm" => true,
+        "cloud_llm" => true
+      }
+    end
+
+    def self.run(context: {}, format: nil)
+      result = new.run(context:)
+      return result.to_json if format == :json
+
+      result
     end
 
     def self.ui_resources(context: {})
@@ -43,6 +55,7 @@ module Mcp
       {
         provider: provider,
         model: model,
+        capabilities: self.class.capabilities,
         findings: findings
       }
     end
