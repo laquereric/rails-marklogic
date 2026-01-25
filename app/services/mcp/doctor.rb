@@ -5,6 +5,14 @@ module Mcp
     end
 
     def run
+      if ENV["MCP_LLM_DISABLED"] == "true"
+        return {
+          provider: "disabled",
+          model: nil,
+          checks: [ warn("LLM", "LLM usage is disabled by configuration") ]
+        }
+      end
+
       provider = Providers::AutoProvider.new
 
       checks = []

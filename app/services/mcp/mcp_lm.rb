@@ -36,7 +36,16 @@ module Mcp
 
     private
 
-    def call_llm(typed_payload)
+     def call_llm(typed_payload)
+       if ENV["MCP_LLM_DISABLED"] == "true"
+         return Failure(
+           PolicyError.new(
+             code: :llm_disabled,
+             message: "LLM usage is disabled by configuration",
+             policy: @policy
+           )
+         )
+       end
        provider = Mcp::Providers::AutoProvider.new
 
        Mcp::AuditLogger.llm_call(
