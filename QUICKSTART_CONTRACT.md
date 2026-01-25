@@ -111,6 +111,18 @@ Strict enforcement belongs later in the lifecycle.
 
 ## Enforcement Mechanism
 
+### Optional Strict Mode
+
+CI may set:
+
+```
+QUICKSTART_OLLAMA_REQUIRED=true
+```
+
+When enabled, Quickstart tests must verify Ollama-specific behavior explicitly.
+
+This allows teams to be strict without forcing local contributors to be.
+
 The Quickstart Contract is enforced by automated tests.
 
 ### Test Tags
