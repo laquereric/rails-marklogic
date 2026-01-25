@@ -37,7 +37,17 @@ module Mcp
     private
 
      def call_llm(typed_payload)
-       if ENV["MCP_LLM_DISABLED"] == "true"
+       if ENV["RAILS_ENV"] == "production" && ENV["MCP_PRODUCTION_ENABLED"] != "true"
+          return Failure(
+            PolicyError.new(
+              code: :production_guard,
+              message: "LLM usage in production requires MCP_PRODUCTION_ENABLED=true",
+              policy: @policy
+            )
+          )
+       end
+
+        if ENV["MCP_LLM_DISABLED"] == "true"
          return Failure(
            PolicyError.new(
              code: :llm_disabled,
@@ -45,7 +55,7 @@ module Mcp
              policy: @policy
            )
          )
-       end
+        end
        provider = Mcp::Providers::AutoProvider.new
 
        Mcp::AuditLogger.llm_call(
