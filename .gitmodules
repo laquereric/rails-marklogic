@@ -34,3 +34,30 @@
 [submodule "vendor/gradle-gem"]
 	path = vendor/gradle-gem
 	url = https://github.com/laquereric/gradle-gem.git
+[submodule "vendor/mcp-culture"]
+	path = vendor/mcp-culture
+	url = https://github.com/laquereric/mcp-culture.git
+[submodule "vendor/mcp-language"]
+	path = vendor/mcp-language
+	url = https://github.com/laquereric/mcp-language.git
+[submodule "vendor/rails-box"]
+	path = vendor/rails-box
+	url = https://github.com/laquereric/rails-box.git
+[submodule "vendor/ropencode-rails"]
+	path = vendor/ropencode-rails
+	url = https://github.com/laquereric/ropencode-rails.git
+[submodule "reference/datahub"]
+	path = reference/datahub
+	url = https://github.com/laquereric/datahub.git
+[submodule "vendor/mcp-framework"]
+	path = vendor/mcp-framework
+	url = https://github.com/laquereric/mcp-framework.git
+[submodule "vendor/mcp-intention"]
+	path = vendor/mcp-intention
+	url = https://github.com/laquereric/mcp-intention.git
+[submodule "vendor/mcp-policy"]
+	path = vendor/mcp-policy
+	url = https://github.com/laquereric/mcp-policy.git
+[submodule "vendor/mcp-type"]
+	path = vendor/mcp-type
+	url = https://github.com/laquereric/mcp-type.git

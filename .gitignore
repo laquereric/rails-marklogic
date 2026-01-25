@@ -33,3 +33,9 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Local crash logs and OS files
+crash/
+.DS_Store
+
+# Local workspace caches
+gradle-gem/
