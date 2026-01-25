@@ -1,0 +1,6 @@
+<h1>MCP Types</h1>
+<ul>
+  <% @types.each do |t| %>
+    <li><%= link_to t.name || t.uri, admin_mcp_type_path(t) %></li>
+  <% end %>
+</ul>

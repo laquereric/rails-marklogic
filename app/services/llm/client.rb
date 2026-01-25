@@ -1,25 +1,24 @@
 # OpenAI-compatible LLM client wrapper.
 
 class Llm::Client
-  def initialize(api_key: ENV.fetch("OPENAI_API_KEY"), model: ENV.fetch("OPENAI_MODEL", "gpt-4o-mini"))
-    @client = OpenAI::Client.new(access_token: api_key)
-    @model = model
+  def initialize(policy:)
+    @policy = policy
   end
 
   def call(prompt:, variables: {})
-    content = render(prompt, variables)
+    payload = {
+      system: prompt.system_role,
+      user: render(prompt, variables)
+    }
 
-    response = @client.chat(
-      parameters: {
-        model: @model,
-        messages: [
-          { role: "system", content: prompt.system_role },
-          { role: "user", content: content }
-        ]
-      }
+    result = Mcp::McpLm.call(
+      policy: @policy,
+      input: payload
     )
 
-    response.dig("choices", 0, "message", "content")
+    return result if result.is_a?(Dry::Monads::Failure)
+
+    result.value!
   end
 
   private

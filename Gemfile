@@ -34,10 +34,21 @@ gem "bootsnap", require: false
 # MarkLogic core client (local submodule)
 gem "marklogic-core", path: "vendor/marklogic-core"
 
+# MCP components (vendored submodules)
+# Framework / documentation layer
+gem "mcp-framework", path: "vendor/mcp-framework", require: false
+
+# MCP functional layers
+gem "mcp-language", path: "vendor/mcp-language"
+gem "mcp-policy",   path: "vendor/mcp-policy"
+gem "mcp-lm",       path: "vendor/mcp-lm"
+gem "mcp-interchange", path: "vendor/mcp-interchange"
+gem "mcp-personality", path: "vendor/mcp-personality"
+
 gem "httpclient"
 
-# LLM integration (OpenAI-compatible)
-gem "ruby-openai"
+gem "dry-monads"
+
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false

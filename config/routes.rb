@@ -15,4 +15,8 @@ Rails.application.routes.draw do
   post "/marklogic/documents", to: "marklogic#put_document"
   get  "/marklogic/documents", to: "marklogic#get_document"
   post "/marklogic/xquery",   to: "marklogic#eval_xquery"
+
+  namespace :admin do
+    resources :mcp_types, only: [ :index, :show ]
+  end
 end
