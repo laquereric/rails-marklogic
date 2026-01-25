@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "time"
+
+STEPS = [
+  ["Vendor immutability", "bin/check-vendor-mutations"],
+  ["Vendor lock", "bin/vendor-verify"],
+  ["Shadow AI guard", "bin/rails test test/integration/shadow_ai_guard_test.rb"],
+  ["MCP API contract", "bin/rails test test/services/mcp_api_contract_test.rb"],
+  ["Full CI", "bin/ci"]
+].freeze
+
+def run!(label, command)
+  puts "→ #{label}"
+  success = system(command)
+  marker = success ? "✅" : "❌"
+  puts "#{marker} #{label}"
+  abort "Merge queue check failed: #{label}" unless success
+end
+
+puts "Merge Queue Check — #{Time.now.utc.iso8601}"
+puts "===================================="
+
+STEPS.each do |label, command|
+  run!(label, command)
+end
+
+puts "All merge queue checks passed."

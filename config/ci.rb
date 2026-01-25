@@ -3,6 +3,11 @@
 CI.run do
   step "Setup", "bin/setup --skip-server"
 
+  step "Governance: Vendor immutability", "bin/check-vendor-mutations"
+  step "Governance: Vendor lock", "bin/vendor-verify"
+  step "Compliance: Shadow AI guard", "bin/rails test test/integration/shadow_ai_guard_test.rb"
+  step "Compliance: MCP API contract", "bin/rails test test/services/mcp_api_contract_test.rb"
+
   step "Style: Ruby", "bin/rubocop"
 
   step "Security: Gem audit", "bin/bundler-audit"

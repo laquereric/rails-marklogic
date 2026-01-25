@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require "fileutils"
+require "yaml"
+require "time"
+
+options = {
+  base_branch: "main",
+  dirs: []
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: bin/agent-start --task 'Title' [options]"
+
+  opts.on("--task TITLE", "Human readable task title") { |value| options[:task] = value }
+  opts.on("--owner EMAIL", "Responsible human owner") { |value| options[:owner] = value }
+  opts.on("--dirs x,y,z", Array, "Comma-separated list of allowed directories") { |list| options[:dirs] = list }
+  opts.on("--base-branch NAME", "Branch to base the agent branch from (default: main)") { |value| options[:base_branch] = value }
+  opts.on("--help", "Show this help") do
+    puts opts
+    exit 0
+  end
+end
+
+parser.parse!(ARGV)
+
+abort "Missing --task" unless options[:task]
+abort "Missing --owner" unless options[:owner]
+
+def ensure_repo_root!
+  abort "Run from repo root" unless File.exist?(".git") && File.exist?("Gemfile")
+end
+
+def slugify(title)
+  title.downcase.strip.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")
+end
+
+def run!(command)
+  puts "→ #{command}"
+  success = system(command)
+  abort "Command failed: #{command}" unless success
+end
+
+ensure_repo_root!
+
+slug = slugify(options[:task])
+branch = "agent/#{slug}"
+worktree_dir = File.join("worktrees", slug)
+
+FileUtils.mkdir_p("worktrees")
+
+if Dir.exist?(worktree_dir)
+  abort "Worktree #{worktree_dir} already exists"
+end
+
+system("git rev-parse --quiet --verify #{branch} > /dev/null 2>&1")
+branch_exists = $?.success?
+
+if branch_exists
+  run!("git worktree add #{worktree_dir} #{branch}")
+else
+  run!("git fetch origin #{options[:base_branch]}")
+  run!("git worktree add -b #{branch} #{worktree_dir} #{options[:base_branch]}")
+end
+
+notes_path = File.join(worktree_dir, "AGENT_NOTES.md")
+unless File.exist?(notes_path)
+  File.write(notes_path, "# Agent Notes\n\n- #{Time.now.utc.iso8601}: Worktree created by bin/agent-start\n")
+end
+
+registry_path = File.join("config", "agent_leases.yml")
+
+leases = if File.exist?(registry_path)
+           YAML.load_file(registry_path)
+         else
+           { "leases" => [] }
+         end
+
+leases["leases"] ||= []
+existing = leases["leases"].find { |lease| lease["id"] == slug }
+
+if existing && existing["status"] != "retired"
+  abort "Lease for #{slug} already active (status=#{existing["status"]})"
+end
+
+timestamp = Time.now.utc.iso8601
+
+lease_record = {
+  "id" => slug,
+  "task" => options[:task],
+  "owner" => options[:owner],
+  "branch" => branch,
+  "worktree" => worktree_dir,
+  "directories" => options[:dirs],
+  "status" => "active",
+  "created_at" => existing ? existing["created_at"] : timestamp,
+  "updated_at" => timestamp
+}
+
+if existing
+  existing.merge!(lease_record)
+else
+  leases["leases"] << lease_record
+end
+
+File.write(registry_path, YAML.dump(leases))
+
+puts "\nAgent worktree ready"
+puts "  Task:      #{options[:task]}"
+puts "  Branch:    #{branch}"
+puts "  Worktree:  #{worktree_dir}"
+puts "  Owner:     #{options[:owner]}"
+puts "  Directories: #{options[:dirs].empty? ? "(none specified)" : options[:dirs].join(", ")}"
+puts "\nNext steps:\n  1. cd #{worktree_dir}\n  2. Review AGENT_NOTES.md\n  3. Execute task within declared directories"

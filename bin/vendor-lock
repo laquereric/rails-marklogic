@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../lib/vendor_lock"
+
+VendorLock.write_lock
+puts "Updated #{VendorLock::LOCK_PATH}"

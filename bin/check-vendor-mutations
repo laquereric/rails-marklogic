@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+if ENV["ALLOW_VENDOR_MUTATION"] == "true"
+  puts "Vendor mutation check bypassed via ALLOW_VENDOR_MUTATION"
+  exit 0
+end
+
+output = `git status --porcelain vendor`
+abort "Failed to inspect vendor directory" unless $?.success?
+
+changes = output.lines.reject { |line| line.strip.empty? }
+
+if changes.empty?
+  puts "Vendor directories clean"
+  exit 0
+end
+
+puts "Vendor changes detected. Set ALLOW_VENDOR_MUTATION=true to proceed."
+puts changes.join
+exit 1

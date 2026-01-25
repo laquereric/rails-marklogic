@@ -1,0 +1,137 @@
+{
+  "generated_at": "2026-01-25T22:27:33Z",
+  "entries": [
+    {
+      "path": "reference/datahub",
+      "commit": "ddf207b49c70d224c24a637947d6d30866163f71",
+      "git_status": " ",
+      "ref": "heads/master"
+    },
+    {
+      "path": "reference/marklogic12",
+      "commit": "d8940c658205001dd11072631d2c6b55356791cc",
+      "git_status": " ",
+      "ref": "remotes/origin/HEAD"
+    },
+    {
+      "path": "reference/markmapper",
+      "commit": "cc3d82d3a2dd945690bb0624587d037e0c84c4fe",
+      "git_status": " ",
+      "ref": "v0.1.0"
+    },
+    {
+      "path": "reference/roxy",
+      "commit": "184cd22222fcf0ca29aa9e0ccbc385f73bcf0806",
+      "git_status": " ",
+      "ref": "v0.1.0"
+    },
+    {
+      "path": "references/vector-mcp",
+      "commit": "aebb923955d000de3ed81da06317659decaeddd6",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/domain_knowledge",
+      "commit": "48a9c7f221d13bd94f593ef7b50f2f70ff182a22",
+      "git_status": " ",
+      "ref": "v0.1.0-3-g48a9c7f"
+    },
+    {
+      "path": "vendor/gradle-gem",
+      "commit": "42441cf2f92cfe07ab562c39a798b4ad97d9ef10",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/knowledge_artifacts",
+      "commit": "11cb2598034c56ffb1e7bc587d2c266977bfd8ef",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/leann-gem",
+      "commit": "b180b8ef30ef4660d674ecabf06e7a6b728f33eb",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/link_less_rails",
+      "commit": "9360d9434bca70a63a97f6350172009112412043",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/marklogic-core",
+      "commit": "54b10da398b1b4eb4b3c85f007120029c8d90e5f",
+      "git_status": " ",
+      "ref": "v0.1.0-3-g54b10da"
+    },
+    {
+      "path": "vendor/mcp-culture",
+      "commit": "0b018d4281a62c07bd0c841574616c22c5dd3a54",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-framework",
+      "commit": "e054301d5ec27a9e19c15a01062e1004b3e5a433",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-intention",
+      "commit": "2285646e12222501dd566e69e1b688a024b31384",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-language",
+      "commit": "56be27d89215a197267d60d9cc202159c63095ba",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-personality",
+      "commit": "b20d2ebe453084a310e1926488e29b3067fc9b55",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-policy",
+      "commit": "23a7c0c1fa0c1dc23a9345ef913cd39658bee8b5",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp-type",
+      "commit": "872d61e34fa6fc3a51cc01958181d1577b401bb9",
+      "git_status": " ",
+      "ref": "heads/main"
+    },
+    {
+      "path": "vendor/mcp_ui_rails",
+      "commit": "49d5a4af9b4812d6db36f320bee2f913225a0fbf",
+      "git_status": " ",
+      "ref": "v0.2.0-4-g49d5a4a"
+    },
+    {
+      "path": "vendor/rails-box",
+      "commit": "b0bec9452ef85da885f112742a6936354f60e5c6",
+      "git_status": " ",
+      "ref": "v0.1.0"
+    },
+    {
+      "path": "vendor/rails-marklogic-tutorial",
+      "commit": "8937e537f3433be7303f6985945a732e163ab897",
+      "git_status": " ",
+      "ref": "v0.1.0"
+    },
+    {
+      "path": "vendor/ropencode-rails",
+      "commit": "7de12fd38b27ae2624678d0bb16c8e9f65acfed1",
+      "git_status": " ",
+      "ref": "v0.2.0-12-g7de12fd"
+    }
+  ]
+}

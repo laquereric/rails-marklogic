@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require "yaml"
+require "time"
+require "fileutils"
+
+options = { force: false }
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: script/agent-cleanup <slug> [--force]"
+
+  opts.on("--force", "Force remove worktree") { options[:force] = true }
+  opts.on("--help") do
+    puts opts
+    exit 0
+  end
+end
+
+parser.order!(ARGV)
+
+slug = ARGV.shift
+abort "Missing task slug" unless slug
+
+def ensure_repo_root!
+  abort "Run from repo root" unless File.exist?(".git")
+end
+
+def run!(command)
+  puts "→ #{command}"
+  success = system(command)
+  abort "Command failed: #{command}" unless success
+end
+
+ensure_repo_root!
+
+worktree_dir = File.join("worktrees", slug)
+branch = "agent/#{slug}"
+
+unless Dir.exist?(worktree_dir)
+  warn "Worktree #{worktree_dir} does not exist"
+else
+  cmd = "git worktree remove #{worktree_dir}"
+  cmd += " --force" if options[:force]
+  run!(cmd)
+end
+
+registry_path = File.join("config", "agent_leases.yml")
+abort "Lease registry not found" unless File.exist?(registry_path)
+
+leases = YAML.load_file(registry_path)
+leases["leases"] ||= []
+entry = leases["leases"].find { |lease| lease["id"] == slug }
+
+if entry.nil?
+  warn "No lease record for #{slug}"
+else
+  entry["status"] = "retired"
+  entry["updated_at"] = Time.now.utc.iso8601
+end
+
+File.write(registry_path, YAML.dump(leases))
+
+if system("git rev-parse --quiet --verify #{branch} > /dev/null")
+  puts "Branch #{branch} still exists; delete manually if desired"
+end
+
+puts "Cleanup complete"

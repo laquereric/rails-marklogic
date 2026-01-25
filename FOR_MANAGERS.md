@@ -18,6 +18,26 @@ In short: this project uses AI as a *tool for developers*, not as an autonomous 
 
 ---
 
+## Snapshot (Slide-Ready)
+
+- **Status:** MCP API v1.0 locked; production LLM calls disabled by default
+- **Guardrails:** One entry point, kill switch, vendor lockfile, CI compliance checks
+- **Metrics:** Audit counters in `tmp/mcp_audit_counts.json` track provider/model usage and policy failures
+- **Next Review:** Quarterly governance cadence (`compliance/reviews`)
+
+---
+
+## Key Performance Indicators
+
+| KPI | Target | Where to Find |
+|-----|--------|---------------|
+| Onboarding pass rate | 100% | CI `bin/onboard --verify` (see script) |
+| LLM calls per day | Alert at threshold | `tmp/mcp_audit_counts.json` (`MCP_AUDIT_ALERT_THRESHOLD`) |
+| Policy failures | 0 | Same audit snapshot |
+| Shadow AI attempts | 0 | `test/integration/shadow_ai_guard_test.rb` (CI blocking) |
+
+---
+
 ## What Problem This Solves
 
 Developers spend significant time:

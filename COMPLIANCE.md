@@ -211,3 +211,9 @@ LLM usage is explicit, bounded, and optional.
 This compliance posture is **active and enforced**.
 
 If CI is green, the safeguards described here are in effect.
+
+---
+
+## Further Reading
+
+- `COMPLIANCE_APPENDIX.md` — FAQ, incident response runbook, and escalation matrix.

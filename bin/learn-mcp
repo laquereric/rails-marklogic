@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+SECTIONS = [
+  {
+    title: "Welcome",
+    body: <<~TEXT
+      MCP (Model Control Plane) is the single approved entry point for all LLM usage.
+      It enforces provider selection, policy checks, audit logging, and kill switches.
+    TEXT
+  },
+  {
+    title: "How Calls Flow",
+    body: <<~TEXT
+      Application code calls Mcp::McpLm.call.
+      Mcp::McpLm delegates to Mcp::Providers::AutoProvider, which chooses the best provider.
+      Audit hooks capture provider/model/intent information for compliance.
+    TEXT
+  },
+  {
+    title: "Doctor",
+    body: <<~TEXT
+      Mcp::Doctor.run exposes readiness checks and capabilities.
+      Use bin/onboard or vendor/ropencode-rails doctor to validate your environment.
+    TEXT
+  },
+  {
+    title: "Kill Switch & Production Guard",
+    body: <<~TEXT
+      Set MCP_LLM_DISABLED=true to pause all LLM calls.
+      Production environments must explicitly set MCP_PRODUCTION_ENABLED=true or calls will fail fast.
+    TEXT
+  },
+  {
+    title: "Next Steps",
+    body: <<~TEXT
+      • Read MCP_API.md for the frozen contract.
+      • Explore docs/agents/OPERATIONS.md to see how automated contributors work safely.
+      • Review COMPLIANCE_APPENDIX.md for incident response and governance cadence.
+    TEXT
+  }
+].freeze
+
+puts "MCP Learning Walkthrough"
+puts "========================="
+puts "Press Enter to advance through each section."
+
+SECTIONS.each_with_index do |section, index|
+  puts "\n#{index + 1}. #{section[:title]}"
+  puts section[:body]
+  break unless index < SECTIONS.length - 1
+
+  puts "(enter to continue, q to quit)"
+  input = $stdin.gets
+  break if input.nil? || input.strip.downcase == "q"
+end
+
+puts "\nYou're ready to use MCP. Run bin/onboard to verify your environment." 

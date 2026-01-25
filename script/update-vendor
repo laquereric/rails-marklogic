@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require "time"
+
+options = {
+  remote: true,
+  ref: nil
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: script/update-vendor <path> [options]"
+
+  opts.on("--ref REF", "Checkout a specific ref instead of tracking remote") { |value| options[:ref] = value }
+  opts.on("--no-remote", "Skip git submodule update --remote") { options[:remote] = false }
+  opts.on("--help") do
+    puts opts
+    exit 0
+  end
+end
+
+parser.order!(ARGV)
+
+path = ARGV.shift
+abort "Missing vendor path" unless path
+
+def ensure_repo_root!
+  abort "Run from repo root" unless File.exist?(".git")
+end
+
+def run!(command)
+  puts "→ #{command}"
+  success = system(command)
+  abort "Command failed: #{command}" unless success
+end
+
+def chdir(path, &block)
+  Dir.chdir(path, &block)
+end
+
+ensure_repo_root!
+
+run!("git submodule update --init #{path}")
+
+if options[:remote] && options[:ref].nil?
+  run!("git submodule update --remote #{path}")
+elsif options[:ref]
+  chdir(path) do
+    run!("git fetch --tags")
+    run!("git checkout #{options[:ref]}")
+  end
+end
+
+run!("bin/vendor-lock")
+
+timestamp = Time.now.utc.iso8601
+puts "Vendor #{path} refreshed at #{timestamp}. Review diffs and update docs before committing."

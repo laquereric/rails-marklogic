@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "net/http"
+require "optparse"
+require "time"
+
+options = {
+  verify: false
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: bin/onboard [--verify]"
+
+  opts.on("--verify", "Run all checks without prompts") { options[:verify] = true }
+  opts.on("--help", "Show this help") do
+    puts opts
+    exit 0
+  end
+end
+
+parser.parse!(ARGV)
+
+def log(status, message)
+  marker = status ? "✅" : "❌"
+  puts "#{marker} #{message}"
+end
+
+def run!(label, command)
+  puts "→ #{label}"
+  success = system(command)
+  log(success, label)
+  abort "Failed: #{label}" unless success
+end
+
+def command_available?(cmd)
+  system("which #{cmd} > /dev/null 2>&1")
+end
+
+def docker_running?
+  system("docker info > /dev/null 2>&1")
+end
+
+def ollama_reachable?
+  uri = URI("http://localhost:11434/api/tags")
+  Net::HTTP.start(uri.host, uri.port, open_timeout: 0.5, read_timeout: 0.5) do |http|
+    res = http.get(uri.path)
+    res.is_a?(Net::HTTPSuccess)
+  end
+rescue
+  false
+end
+
+puts "MCP Onboarding — #{Time.now.utc.iso8601}"
+puts "================================" 
+
+puts "Running in verify mode" if options[:verify]
+
+log(command_available?("git"), "git available")
+log(command_available?("ruby"), "ruby available")
+log(command_available?("bundle"), "bundle available")
+log(command_available?("docker"), "docker available")
+log(command_available?("ollama"), "ollama CLI detected")
+log(docker_running?, "docker daemon responding")
+log(ollama_reachable?, "ollama API reachable (localhost:11434)")
+
+run!("Vendor immutability check", "bin/check-vendor-mutations")
+run!("Vendor lock verification", "bin/vendor-verify")
+run!("Shadow AI guard", "bin/rails test test/integration/shadow_ai_guard_test.rb")
+run!("MCP API contract", "bin/rails test test/services/mcp_api_contract_test.rb")
+
+puts "\nSetup looks good. You can now run ropencode via vendor/ropencode-rails." 
