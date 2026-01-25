@@ -42,7 +42,7 @@ gem "mcp-framework", path: "vendor/mcp-framework", require: false
 gem "mcp-language", path: "vendor/mcp-language"
 gem "mcp-policy",   path: "vendor/mcp-policy"
 gem "mcp-lm",       path: "vendor/mcp-lm"
-gem "mcp-interchange", path: "vendor/mcp-interchange"
+# gem "mcp-interchange", path: "vendor/mcp-interchange" (removed: unused)
 gem "mcp-personality", path: "vendor/mcp-personality"
 
 gem "httpclient"
