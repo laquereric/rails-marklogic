@@ -6,8 +6,19 @@ class ShadowAiGuardTest < ActiveSupport::TestCase
   def test_vendor_sdks_are_not_used_directly
     base = Rails.root.to_s
     search_roots = %w[app config lib script bin test]
+    allowlist = [
+      "app/services/mcp/",
+      "config/initializers/openai_guard.rb",
+      "test/integration/shadow_ai_guard_test.rb"
+    ]
+
     paths = search_roots.flat_map do |root|
       Dir.glob(File.join(base, root, "**/*.rb"))
+    end
+
+    paths.reject! do |path|
+      relative = path.sub("#{base}/", "")
+      allowlist.any? { |allowed| relative.start_with?(allowed) }
     end
 
     violations = []

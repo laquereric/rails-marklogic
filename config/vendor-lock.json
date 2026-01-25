@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-25T22:27:33Z",
+  "generated_at": "2026-01-25T23:05:02Z",
   "entries": [
     {
       "path": "reference/datahub",
@@ -57,7 +57,7 @@
     },
     {
       "path": "vendor/link_less_rails",
-      "commit": "9360d9434bca70a63a97f6350172009112412043",
+      "commit": "b5a0a4d72c8a7ec60b39efbab442bc254bc91051",
       "git_status": " ",
       "ref": "heads/main"
     },
@@ -75,8 +75,8 @@
     },
     {
       "path": "vendor/mcp-framework",
-      "commit": "e054301d5ec27a9e19c15a01062e1004b3e5a433",
-      "git_status": " ",
+      "commit": "52c342545b5dc380432e05326365db8a2b6cb119",
+      "git_status": "+",
       "ref": "heads/main"
     },
     {
@@ -87,8 +87,8 @@
     },
     {
       "path": "vendor/mcp-language",
-      "commit": "56be27d89215a197267d60d9cc202159c63095ba",
-      "git_status": " ",
+      "commit": "827509563360c7bd3a453fe39717576fb632bd0f",
+      "git_status": "+",
       "ref": "heads/main"
     },
     {
@@ -99,8 +99,8 @@
     },
     {
       "path": "vendor/mcp-policy",
-      "commit": "23a7c0c1fa0c1dc23a9345ef913cd39658bee8b5",
-      "git_status": " ",
+      "commit": "ded321d4123cf272c8b4d0df9a0d52f58f53205f",
+      "git_status": "+",
       "ref": "heads/main"
     },
     {
@@ -129,9 +129,9 @@
     },
     {
       "path": "vendor/ropencode-rails",
-      "commit": "7de12fd38b27ae2624678d0bb16c8e9f65acfed1",
-      "git_status": " ",
-      "ref": "v0.2.0-12-g7de12fd"
+      "commit": "9d5bc1b206bed1d4df1e2616653ce38b8a9d83be",
+      "git_status": "+",
+      "ref": "v0.2.0-13-g9d5bc1b"
     }
   ]
 }
