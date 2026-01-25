@@ -1,4 +1,4 @@
-@quickstart @onboarding @smoke
+@quickstart @onboarding @smoke @quickstart_contracts
 Feature: Full Quickstart smoke test
 
   @smoke
