@@ -9,4 +9,5 @@ Feature: Full Quickstart smoke test
     And I run ropencode command "explain User"
     And I ask a question via ropencode
     Then I should remain inside IRB
+    And the provider should be Ollama with devstral
     And I should get a response or an explanation

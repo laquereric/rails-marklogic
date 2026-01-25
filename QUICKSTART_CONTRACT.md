@@ -44,6 +44,17 @@ It explicitly does **not** govern:
 
 ## Contract Invariants
 
+### Ollama-Specific Defaults (Development)
+
+When Ollama is reachable at `http://localhost:11434` and no explicit provider is configured:
+
+- Ollama **must** be selected automatically
+- The default model **must** be `devstral:24b`
+- The selected provider and model **must** be visible in the console/TUI
+- Failures **must** explain how to start Ollama or pull the model
+
+These behaviors are part of the Quickstart Contract and are release-blocking.
+
 The following invariants must always hold:
 
 ### 1. Defaults Must Work
