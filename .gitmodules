@@ -30,7 +30,7 @@
 	url = https://github.com/laquereric/domain_knowledge.git
 [submodule "vendor/knowledge_artifacts"]
 	path = vendor/knowledge_artifacts
-	url = ./vendor/knowledge_artifacts
+	url = https://github.com/laquereric/knowledge_artifacts.git
 [submodule "vendor/gradle-gem"]
 	path = vendor/gradle-gem
 	url = https://github.com/laquereric/gradle-gem.git
