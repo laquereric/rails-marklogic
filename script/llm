@@ -1,0 +1,432 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+LLM_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+LLM_LIB_DIR="$SCRIPT_DIR/llm.d"
+LLM_CONFIG_PATH="${LLM_CONFIG_PATH:-$LLM_ROOT/config/llm.toml}"
+
+# shellcheck source=script/llm.d/core.sh
+source "$LLM_LIB_DIR/core.sh"
+# shellcheck source=script/llm.d/config.sh
+source "$LLM_LIB_DIR/config.sh"
+# shellcheck source=script/llm.d/models.sh
+source "$LLM_LIB_DIR/models.sh"
+# shellcheck source=script/llm.d/backend_ollama.sh
+source "$LLM_LIB_DIR/backend_ollama.sh"
+# shellcheck source=script/llm.d/probe.sh
+source "$LLM_LIB_DIR/probe.sh"
+# shellcheck source=script/llm.d/routing.sh
+source "$LLM_LIB_DIR/routing.sh"
+# shellcheck source=script/llm.d/mcp.sh
+source "$LLM_LIB_DIR/mcp.sh"
+
+llm_usage() {
+  cat <<'EOF'
+Usage: llm <command> [options]
+
+Top-level commands:
+  status             Show current readiness summary
+  doctor             Run extended diagnostics
+  probe              Exercise the MCP gateway against its configured model
+  model <subcommand> Manage local model runtimes
+  run <prompt>       Execute an ad-hoc prompt via default routing
+  help               Show this help
+
+Set LLM_CONFIG_PATH to override config path.
+EOF
+}
+
+llm_usage_model() {
+  cat <<'EOF'
+Usage: llm model <command>
+
+Commands:
+  list               Show models declared in config
+  info <name>        Show detailed information for a model
+  activate <name>    Mark a model as active (future)
+  stop <name>        Stop a running model (future)
+EOF
+}
+
+llm_model_info() {
+  local name=$1
+  llm_config_load
+  llm_models_validate
+  llm_model_assert_exists "$name"
+
+  local backend
+  backend=$(llm_model_backend "$name")
+  local caps_json
+  caps_json=$(llm_model_capabilities "$name")
+  local default_name
+  default_name=$(llm_model_default_name)
+  local runner=""
+  if [ "$backend" = "ollama" ]; then
+    runner=$(llm_model_backend_runner "$name")
+  fi
+
+  python3 - "$caps_json" "$name" "$backend" "$default_name" "$runner" <<'PY'
+import json
+import sys
+
+caps = json.loads(sys.argv[1]) or []
+name = sys.argv[2]
+backend = sys.argv[3]
+default = sys.argv[4]
+runner = sys.argv[5]
+
+print(f"name: {name}")
+print(f"backend: {backend}")
+if runner:
+    print(f"runner: {runner}")
+print(f"default: {'yes' if name == default else 'no'}")
+print("capabilities:")
+if caps:
+    for cap in caps:
+        print(f"  - {cap}")
+else:
+    print("  (none)")
+PY
+}
+
+cmd_status() {
+  llm_config_load
+  llm_models_validate
+  llm_routing_validate
+  llm_mcp_assert_ready
+  llm_mcp_require_alignment
+
+  local mcp_expected_runner
+  mcp_expected_runner=$(llm_mcp_expected_runner)
+  local mcp_expected_host
+  mcp_expected_host=$(llm_mcp_expected_host)
+
+  echo "root: $LLM_ROOT"
+  echo "config: $LLM_CONFIG_PATH"
+  echo "vendor/mcp-lm: $LLM_ROOT/vendor/mcp-lm"
+  if [ -n "${LLM_MCP_VERSION:-}" ]; then
+    echo "mcp-lm version: $LLM_MCP_VERSION"
+  fi
+  echo "mcp auto host: $mcp_expected_host"
+  echo "mcp auto runner: $mcp_expected_runner"
+  echo
+
+  python3 - <<'PY'
+import json
+import os
+
+config = json.loads(os.environ['LLM_CONFIG_JSON'])
+global_cfg = config.get('global', {})
+mcp_cfg = config.get('mcp', {})
+models = config.get('models', {})
+defaults = [name for name, cfg in models.items() if cfg.get('default')]
+
+print(f"mode: {global_cfg.get('mode', 'unknown')}")
+print(f"fail_hard: {'enabled' if global_cfg.get('fail_hard') else 'disabled'}")
+print(f"mcp path: {mcp_cfg.get('path', 'vendor/mcp-lm')}")
+print(f"mcp min version: {mcp_cfg.get('min_version', 'unspecified')}")
+print(f"models configured: {len(models)}")
+if defaults:
+    print(f"default model: {defaults[0]}")
+else:
+    print("default model: (missing)")
+PY
+}
+
+cmd_doctor() {
+  local failures=0
+
+  llm_doctor_check "python3 available" llm_doctor_check_python || failures=1
+  llm_doctor_check "ruby available" llm_doctor_check_ruby || failures=1
+  llm_doctor_check "config parses" llm_doctor_check_config || failures=1
+  llm_doctor_check "models valid" llm_doctor_check_models || failures=1
+  llm_doctor_check "routing table valid" llm_doctor_check_routing || failures=1
+  llm_doctor_check "mcp-lm vendor ready" llm_doctor_check_mcp || failures=1
+
+  if [ $failures -ne 0 ]; then
+    llm_die "One or more doctor checks failed"
+  fi
+
+  echo "All checks passed."
+}
+
+llm_doctor_check() {
+  local label=$1
+  shift
+
+  local output
+  if output=$( ( "$@" ) 2>&1 ); then
+    printf '[OK]   %s\n' "$label"
+    return 0
+  else
+    printf '[FAIL] %s\n' "$label"
+    if [ -n "$output" ]; then
+      printf '       %s\n' "$output"
+    fi
+    return 1
+  fi
+}
+
+llm_doctor_check_python() {
+  llm_require_command python3
+}
+
+llm_doctor_check_ruby() {
+  llm_require_command ruby
+}
+
+llm_doctor_check_config() {
+  llm_config_load
+}
+
+llm_doctor_check_models() {
+  llm_config_load
+  llm_models_validate
+  llm_models_verify_runtime
+}
+
+llm_doctor_check_routing() {
+  llm_config_load
+  llm_models_validate
+  llm_routing_validate
+}
+
+llm_doctor_check_mcp() {
+  llm_config_load
+  llm_mcp_assert_ready
+  llm_mcp_require_alignment
+}
+
+cmd_model() {
+  local subcommand=${1:-}
+  shift || true
+
+  case "$subcommand" in
+    list)
+      llm_config_load
+      llm_models_validate
+      local models_json
+      models_json=$(llm_config_get models)
+
+      python3 - "$models_json" <<'PY'
+import json
+import sys
+
+models = json.loads(sys.argv[1]) or {}
+if not models:
+    print("No models configured.")
+    sys.exit(0)
+
+name_width = max([len('NAME')] + [len(name) for name in models.keys()])
+backend_width = max([len('BACKEND')] + [len(str(model.get('backend', ''))) for model in models.values()])
+cap_width = max([len('CAPABILITIES')] + [len(','.join(model.get('capabilities') or [])) for model in models.values()])
+default_width = len('DEFAULT')
+
+header = f"{'NAME'.ljust(name_width)}  {'BACKEND'.ljust(backend_width)}  {'CAPABILITIES'.ljust(cap_width)}  DEFAULT"
+print(header)
+print(f"{'-' * name_width}  {'-' * backend_width}  {'-' * cap_width}  {'-' * default_width}")
+
+for name, cfg in models.items():
+    backend = str(cfg.get('backend', 'n/a'))
+    capabilities = ','.join(cfg.get('capabilities') or []) or 'none'
+    default = 'yes' if cfg.get('default') else ''
+    row = f"{name.ljust(name_width)}  {backend.ljust(backend_width)}  {capabilities.ljust(cap_width)}  {default}"
+    print(row)
+PY
+      ;;
+    info|show)
+      local model_name=${1:-}
+      if [ -z "$model_name" ]; then
+        llm_die "Usage: llm model info <name>"
+      fi
+      shift || true
+      llm_model_info "$model_name"
+      ;;
+    activate|stop)
+      llm_die "'llm model $subcommand' will be added after routing lands."
+      ;;
+    ""|-h|--help|help)
+      llm_usage_model
+      ;;
+    *)
+      llm_die "Unknown model subcommand: $subcommand"
+      ;;
+  esac
+}
+
+cmd_run() {
+  local task=""
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --task)
+        shift
+        task=${1:-}
+        if [ -z "$task" ]; then
+          llm_die "--task requires a value"
+        fi
+        shift
+        ;;
+      --task=*)
+        task=${1#--task=}
+        shift
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -h|--help)
+        llm_die "Usage: llm run --task <name> "prompt""
+        ;;
+      -*)
+        llm_die "Unknown flag for 'llm run': $1"
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  if [ -z "$task" ]; then
+    llm_die "Specify a task via --task <name>"
+  fi
+
+  if [ $# -eq 0 ]; then
+    llm_die "Provide a prompt string"
+  fi
+
+  local prompt="$*"
+
+  llm_config_load
+  llm_models_validate
+  llm_routing_validate
+  llm_mcp_assert_ready
+
+  local model
+  model=$(llm_routing_model_for "$task")
+  local backend
+  backend=$(llm_model_backend "$model")
+  local runner=""
+  if [ "$backend" = "ollama" ]; then
+    runner=$(llm_model_backend_runner "$model")
+  fi
+
+  echo "task: $task"
+  echo "model: $model"
+  echo "backend: $backend"
+  if [ -n "$runner" ]; then
+    echo "runner: $runner"
+  fi
+  echo
+  echo "Prompt:"
+  echo "$prompt"
+  echo
+  echo "Response:"
+  echo "---------"
+
+  llm_model_invoke "$model" "$prompt"
+}
+
+cmd_probe() {
+  local system_msg=""
+  local user_msg=""
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --system)
+        shift
+        system_msg=${1:-}
+        if [ -z "$system_msg" ]; then
+          llm_die "--system requires a value"
+        fi
+        shift
+        ;;
+      --system=*)
+        system_msg=${1#--system=}
+        shift
+        ;;
+      --user)
+        shift
+        user_msg=${1:-}
+        if [ -z "$user_msg" ]; then
+          llm_die "--user requires a value"
+        fi
+        shift
+        ;;
+      --user=*)
+        user_msg=${1#--user=}
+        shift
+        ;;
+      -h|--help)
+        cat <<'EOF'
+Usage: llm probe [--system TEXT] [--user TEXT]
+
+Runs a lightweight end-to-end request against the MCP auto provider's configured Ollama model.
+EOF
+        return
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        llm_die "Unknown flag for 'llm probe': $1"
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
+  if [ -z "$system_msg" ]; then
+    system_msg=$(llm_probe_default_system)
+  fi
+  if [ -z "$user_msg" ]; then
+    user_msg=$(llm_probe_default_user)
+  fi
+
+  llm_config_load
+  llm_models_validate
+  llm_routing_validate
+  llm_mcp_assert_ready
+  llm_mcp_require_alignment
+
+  echo "Executing MCP probe..."
+  llm_probe_run "$system_msg" "$user_msg"
+}
+
+cmd_help() {
+  llm_usage
+}
+
+main() {
+  local command=${1:-}
+  shift || true
+
+  case "$command" in
+    status)
+      cmd_status "$@"
+      ;;
+    doctor)
+      cmd_doctor "$@"
+      ;;
+    probe)
+      cmd_probe "$@"
+      ;;
+    model)
+      cmd_model "$@"
+      ;;
+    run)
+      cmd_run "$@"
+      ;;
+    help|-h|--help|"")
+      cmd_help
+      ;;
+    *)
+      llm_die "Unknown command: $command"
+      ;;
+  esac
+}
+
+main "$@"

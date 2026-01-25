@@ -1,0 +1,17 @@
+[global]
+mode = "local"
+fail_hard = true
+
+[mcp]
+path = "vendor/mcp-lm"
+min_version = "0.1.0"
+
+[models.devstral]
+backend = "ollama"
+model = "devstral:24b"
+capabilities = ["chat", "reason"]
+default = true
+
+[routing]
+chat = "devstral"
+reason = "devstral"

@@ -39,3 +39,6 @@ crash/
 
 # Local workspace caches
 gradle-gem/
+
+# Local vendor logs
+vendor/log/
