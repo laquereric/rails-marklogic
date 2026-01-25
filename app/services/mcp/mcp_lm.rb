@@ -39,7 +39,13 @@ module Mcp
     def call_llm(typed_payload)
        provider = Mcp::Providers::AutoProvider.new
 
-      response = provider.chat(
+       Mcp::AuditLogger.llm_call(
+         provider: provider.provider_name,
+         model: provider.model_name,
+         intent: @policy&.id || "unknown"
+       )
+
+       response = provider.chat(
         messages: [
           { role: "system", content: typed_payload["system"] },
           { role: "user", content: typed_payload["user"] }
