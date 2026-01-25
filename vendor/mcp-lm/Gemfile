@@ -1,0 +1,4 @@
+source "https://rubygems.org"
+
+# LLM integration (OpenAI-compatible)
+gem "ruby-openai"
