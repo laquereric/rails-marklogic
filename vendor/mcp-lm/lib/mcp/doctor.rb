@@ -1,145 +1,57 @@
-require "json"
 require "securerandom"
-require "time"
 
 module Mcp
   class Doctor
-    def self.run(context: {}, format: :hash)
-      report = new(context: context).run
-      format == :json ? JSON.pretty_generate(report) : report
+    def self.run(context: {})
+      new.run(context:)
     end
 
-    def self.capabilities
-      new.capabilities
+    def self.ui_resources(context: {})
+      result = run(context:)
+      Report.new(answer_id: context[:answer_id], findings: result[:findings]).to_ui_resources
     end
 
-    def self.find_rejections(artifact: nil)
-      return [] unless defined?(MarkLogic)
-
-      query = {
-        type: :doctor_finding,
-        outcome: :rejected
-      }
-      query[:artifact] = artifact if artifact
-
-      MarkLogic::Client.default.search(query, collection: "mcp-doctor-findings")
-    end
-
-    def initialize(context: {})
-      @context = context
+    def run(context: {})
       @answer_id = context[:answer_id]
-    end
 
-    def run
-      return disabled_report if kill_switch_enabled?
+      if ENV["MCP_LLM_DISABLED"] == "true"
+        return report(
+          provider: "disabled",
+          model: nil,
+          findings: [ warn("LLM", "LLM usage is disabled by configuration") ]
+        )
+      end
 
-      provider = safe_provider
+      provider = Providers::AutoProvider.new
 
-      return provider_error_report if provider.nil?
+      findings = []
+      findings.concat(environment_checks(provider))
+      findings.concat(diagnostic_checks(context))
 
-      checks = environment_checks(provider)
-      diagnostics = diagnostic_checks
-
-      persist_all(diagnostics)
-
-      report = {
+      report(
         provider: provider.provider_name,
         model: provider.model_name,
-        checks: checks,
-        diagnostics: diagnostics,
-        capabilities: capabilities_for(provider),
-        generated_at: Time.now.utc.iso8601
-      }
-
-      report[:findings] = checks
-      report
-    end
-
-    def capabilities
-      base = {
-        "audit_logging" => true,
-        "kill_switch" => kill_switch_enabled?
-      }
-
-      return base.merge("local_llm" => false, "cloud_llm" => false) if kill_switch_enabled?
-
-      provider = safe_provider
-      return base.merge("local_llm" => false, "cloud_llm" => false) if provider.nil?
-
-      base.merge(capabilities_for(provider))
+        findings: findings
+      )
     end
 
     private
 
-    def disabled_report
-      warning = warn("LLM", "LLM usage is disabled by configuration")
-
-      report = {
-        provider: "disabled",
-        model: nil,
-        checks: [ warning ],
-        diagnostics: [],
-        capabilities: {
-          "local_llm" => false,
-          "cloud_llm" => false,
-          "audit_logging" => true,
-          "kill_switch" => true
-        },
-        generated_at: Time.now.utc.iso8601
-      }
-      report[:findings] = report[:checks]
-      report
-    end
-
-    def capabilities_for(provider)
-      name = provider.provider_name.to_s.downcase
+    def report(provider:, model:, findings:)
+      findings.each { |finding| persist_finding(finding) }
 
       {
-        "provider" => provider.provider_name,
-        "model" => provider.model_name,
-        "local_llm" => name.include?("ollama"),
-        "cloud_llm" => name.include?("openai"),
-        "audit_logging" => true,
-        "kill_switch" => kill_switch_enabled?
+        provider: provider,
+        model: model,
+        findings: findings
       }
-    end
-
-    def provider_error_report
-      warning = warn("LLM Provider", @provider_error || "No provider available")
-
-      report = {
-        provider: "unavailable",
-        model: nil,
-        checks: [ warning ],
-        diagnostics: [],
-        capabilities: {
-          "local_llm" => false,
-          "cloud_llm" => false,
-          "audit_logging" => true,
-          "kill_switch" => kill_switch_enabled?
-        },
-        generated_at: Time.now.utc.iso8601
-      }
-      report[:findings] = report[:checks]
-      report
-    end
-
-    def safe_provider
-      Providers::AutoProvider.new
-    rescue => e
-      @provider_error = e.message
-      nil
-    end
-
-    def kill_switch_enabled?
-      ENV["MCP_LLM_DISABLED"] == "true"
     end
 
     def environment_checks(provider)
       checks = []
       checks << ok("Rails")
 
-      if provider.provider_name.to_s.include?("Ollama")
+      if provider.provider_name.include?("Ollama")
         checks << ollama_check
         checks << model_check(provider.model_name)
       else
@@ -149,9 +61,9 @@ module Mcp
       checks
     end
 
-    def diagnostic_checks
+    def diagnostic_checks(context)
       findings = []
-      artifact = @context[:artifact]
+      artifact = context[:artifact]
       return findings unless artifact
 
       if artifact.start_with?("vendor/knowledge_artifacts/domains/")
@@ -169,7 +81,7 @@ module Mcp
           message: "Artifact is part of the knowledge playground and is illustrative-only"
         )
 
-        if @context[:effective_date].nil?
+        if context[:effective_date].nil?
           findings << reject(
             artifact: artifact,
             reason: :temporal_invalidity,
@@ -183,6 +95,7 @@ module Mcp
 
     def accept(artifact:, message:)
       {
+        id: SecureRandom.uuid,
         type: :authority_evidence,
         artifact: artifact,
         answer_id: @answer_id,
@@ -194,6 +107,7 @@ module Mcp
 
     def reject(artifact:, reason:, message:)
       {
+        id: SecureRandom.uuid,
         type: :authority_evidence,
         artifact: artifact,
         answer_id: @answer_id,
@@ -208,19 +122,12 @@ module Mcp
       { name: name, status: :ok }
     end
 
-    def warn(name, message)
-      { name: name, status: :warn, message: message }
-    end
-
-    def persist_all(findings)
-      findings.each { |finding| persist_finding(finding) }
-    end
-
     def persist_finding(finding)
-      return unless defined?(MarkLogic)
+      return finding unless defined?(MarkLogic)
 
       client = MarkLogic::Client.default
-      uri = "/mcp/doctor/findings/#{SecureRandom.uuid}.json"
+      id = finding[:id] ||= SecureRandom.uuid
+      uri = "/mcp/doctor/findings/#{id}.json"
 
       client.write(
         uri,
@@ -228,8 +135,27 @@ module Mcp
         collections: [ "mcp-doctor-findings" ],
         permissions: [ "rest-reader", "rest-writer" ]
       )
+
+      finding
     rescue => e
       warn("Doctor Persistence", e.message)
+    end
+
+    # --- Query helpers ---
+    def self.find_rejections(artifact: nil)
+      return [] unless defined?(MarkLogic)
+
+      query = {
+        type: :doctor_finding,
+        outcome: :rejected
+      }
+      query[:artifact] = artifact if artifact
+
+      MarkLogic::Client.default.search(query, collection: "mcp-doctor-findings")
+    end
+
+    def warn(name, message)
+      { name: name, status: :warn, message: message }
     end
 
     def ollama_check
