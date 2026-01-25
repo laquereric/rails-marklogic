@@ -1,4 +1,12 @@
 class McpType < ApplicationRecord
+  def domain_schema
+    DomainKnowledge::Schema.parse(schema)
+  end
+
+  def computed_structural_hash
+    domain_schema.structural_hash
+  end
+
   validates :uri, presence: true, uniqueness: true
   validates :schema, presence: true
   validates :structural_hash, presence: true

@@ -29,7 +29,7 @@ gem "solid_queue"
 gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
+# gem "bootsnap", require: false (disabled)
 
 # MarkLogic core client (local submodule)
 gem "marklogic-core", path: "vendor/marklogic-core"
@@ -42,13 +42,11 @@ gem "mcp-framework", path: "vendor/mcp-framework", require: false
 gem "mcp-language", path: "vendor/mcp-language"
 gem "mcp-policy",   path: "vendor/mcp-policy"
 gem "mcp-lm",       path: "vendor/mcp-lm"
-# gem "mcp-interchange", path: "vendor/mcp-interchange" (removed: unused)
+gem "ropencode-rails", path: "vendor/ropencode-rails"
 gem "mcp-personality", path: "vendor/mcp-personality"
-
 gem "httpclient"
 
 gem "dry-monads"
-
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false

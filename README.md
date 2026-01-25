@@ -22,6 +22,45 @@ The tutorial system is versioned independently and can also be consumed as a Rub
 
 This repository contains the Rails integration and supporting code for working with MarkLogic.
 
+## MCP Doctor Demo: “Why did the model answer this?”
+
+Rails‑MarkLogic introduces **MCP Doctor**, a diagnostic substrate for AI systems built on MCP.
+
+### The Question
+A user asks a question. The model answers. MCP Doctor explains *why that answer was possible* — with evidence.
+
+### What MCP Doctor Captures
+- MCP message envelopes
+- Tool invocations and declared schemas
+- Retrieved RAG source documents
+- Temporal and semantic constraints
+
+### What MCP Doctor Explains
+- Which documents influenced the answer
+- Why those documents were eligible
+- Which constraints were satisfied
+- Which constraints were violated or missing
+- Whether schema drift occurred during tool calls
+
+### Example Diagnostic Output
+```json
+{
+  "answer": "The contract is valid under New York law.",
+  "doctor_report": {
+    "confidence": "medium",
+    "rag_justification": {
+      "documents_used": ["contract_v3.xml", "case_law_2019.json"],
+      "constraints_satisfied": ["domain=legal", "effective_date<=2024"],
+      "constraints_violated": ["jurisdiction!=NY"]
+    }
+  }
+}
+```
+
+This explanation is **schema‑aware, queryable, and auditable** — not probabilistic.
+
+This capability is not achievable with vector search alone and is the core differentiator of Rails‑MarkLogic.
+
 ## Vendor Inventory
 
 This section inventories the contents of the `vendor/` directory and describes how each folder is integrated.

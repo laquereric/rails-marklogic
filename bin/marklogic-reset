@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ROXY_DIR="$ROOT_DIR/reference/roxy"
+
+if [[ ! -d "$ROXY_DIR" ]]; then
+  echo "ERROR: reference/roxy not found"
+  echo "Clone https://github.com/laquereric/roxy.git into reference/roxy"
+  exit 1
+fi
+
+if [[ "${RAILS_ENV:-}" == "production" ]]; then
+  echo "ERROR: Refusing to run in production"
+  exit 1
+fi
+
+echo "This will DESTROY and REDEPLOY local MarkLogic databases."
+read -p "Type 'reset' to continue: " CONFIRM
+
+if [[ "$CONFIRM" != "reset" ]]; then
+  echo "Aborted"
+  exit 1
+fi
+
+cd "$ROXY_DIR"
+
+ml local destroy
+ml local deploy
+
+echo "MarkLogic reset complete."

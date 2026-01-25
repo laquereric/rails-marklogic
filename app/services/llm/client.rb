@@ -1,5 +1,28 @@
 # OpenAI-compatible LLM client wrapper.
-
+#
+# This class is a thin application-level adapter around the MCP LLM layer.
+# It is responsible for:
+# - Rendering prompt templates with variables
+# - Applying policy-scoped execution
+# - Normalizing inputs/outputs for Rails callers
+#
+# It deliberately does NOT:
+# - Manage provider configuration
+# - Perform retries or streaming
+# - Encode domain semantics (those live in prompts and policies)
+#
+# Treat this as an orchestration boundary, not an AI abstraction.
+#
+# Example:
+#   prompt = Prompts::ExplainModel.new
+#   client = Llm::Client.new(policy: Policies::Default)
+#
+#   response = client.call(
+#     prompt: prompt,
+#     variables: { model: "User" }
+#   )
+#
+#   puts response
 class Llm::Client
   def initialize(policy:)
     @policy = policy
