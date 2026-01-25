@@ -61,3 +61,6 @@
 [submodule "vendor/mcp-type"]
 	path = vendor/mcp-type
 	url = https://github.com/laquereric/mcp-type.git
+[submodule "vendor/link_less_rails"]
+	path = vendor/link_less_rails
+	url = https://github.com/laquereric/link_less_rails.git
