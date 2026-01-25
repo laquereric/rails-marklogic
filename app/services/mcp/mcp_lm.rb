@@ -37,7 +37,7 @@ module Mcp
     private
 
     def call_llm(typed_payload)
-      provider = Mcp::Providers::OpenAiProvider.new
+       provider = Mcp::Providers::AutoProvider.new
 
       response = provider.chat(
         messages: [
