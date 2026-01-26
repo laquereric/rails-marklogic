@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "vector-mcp"
-  spec.version       = "0.1.0"
+  spec.version       = "0.3.0"
   spec.authors       = [ "Eric Laquer" ]
   spec.summary       = "Ruby wrapper for vector-mcp Python project"
   spec.files         = Dir["lib/**/*"]
