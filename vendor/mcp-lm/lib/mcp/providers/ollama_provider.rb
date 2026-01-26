@@ -13,7 +13,8 @@ module Mcp
         req["Content-Type"] = "application/json"
         req.body = {
           model: model,
-          messages: messages
+          messages: messages,
+          stream: false
         }.to_json
 
         Net::HTTP.start(uri.host, uri.port, open_timeout: 1, read_timeout: 60) do |http|

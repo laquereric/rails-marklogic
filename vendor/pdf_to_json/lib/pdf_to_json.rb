@@ -1,3 +1,4 @@
+require "pdf_to_json/extractor"
 require "pdf_to_json/converter"
 
 module PdfToJson

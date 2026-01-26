@@ -34,6 +34,10 @@ gem "solid_cable"
 # MarkLogic core client (local submodule)
 gem "marklogic-core", path: "vendor/marklogic-core"
 
+# PDF extraction and JSON conversion
+gem "pdf_to_json", path: "vendor/pdf_to_json"
+gem "pdf-reader"
+
 # MCP components (vendored submodules)
 # Framework / documentation layer
 gem "mcp-framework", path: "vendor/mcp-framework", require: false

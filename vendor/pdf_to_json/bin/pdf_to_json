@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# PDF to JSON extraction CLI
+
+require "pdf_to_json"
+
+if __FILE__ == $PROGRAM_NAME
+  pdf_path = ARGV[0]
+  output_path = ARGV[1]
+
+  unless pdf_path && File.exist?(pdf_path)
+    puts "Usage: #{$0} <pdf_path> [output_path]"
+    puts ""
+    puts "Example:"
+    puts "  #{$0} document.pdf"
+    puts "  #{$0} document.pdf document.json"
+    exit 1
+  end
+
+  puts "Extracting PDF: #{pdf_path}"
+
+  begin
+    extractor = PdfToJson::Extractor.new
+    output_path = extractor.extract_to_json_file(pdf_path, output_path)
+
+    puts "Extraction complete!"
+    puts "Output: #{output_path}"
+
+    # Show some stats
+    content = JSON.parse(File.read(output_path))
+    puts "\nStatistics:"
+    puts "  Pages: #{content['metadata']['page_count']}"
+    puts "  Characters: #{content['text'].length}"
+    puts "  Words: #{content['text'].split(/\s+/).length}"
+    puts "  Structure elements: #{content['structure'].length}"
+
+  rescue => e
+    puts "Error: #{e.message}"
+    puts e.backtrace
+    exit 1
+  end
+end

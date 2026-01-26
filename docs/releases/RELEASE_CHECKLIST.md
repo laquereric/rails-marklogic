@@ -10,7 +10,7 @@
 ## Tag & Publish
 - [ ] Run `bin/onboard --verify`
 - [ ] Run `bin/merge-queue-check`
-- [ ] Create annotated tag `mcp-v<version>`
+- [ ] Create annotated tag `<version>` (e.g. `0.4.0`)
 - [ ] Push tag and changelog to origin
 
 ## Post-Release

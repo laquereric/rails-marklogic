@@ -1,0 +1,108 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+def die(msg)
+  warn(msg)
+  exit(1)
+end
+
+root = File.expand_path("..", __dir__)
+root_version_path = File.join(root, "VERSION")
+root_version = File.read(root_version_path).strip
+
+if root_version.empty?
+  die("VERSION is empty: #{root_version_path}")
+end
+
+checks = [
+  {
+    label: "vendor/mcp-lm/mcp-lm.gemspec",
+    path: File.join(root, "vendor/mcp-lm/mcp-lm.gemspec"),
+    regex: /spec\.version\s*=\s*[\"'](?<v>[^\"']+)[\"']/
+  },
+  {
+    label: "vendor/spawned/lib/spawned/version.rb",
+    path: File.join(root, "vendor/spawned/lib/spawned/version.rb"),
+    regex: /\bVERSION\s*=\s*[\"'](?<v>[^\"']+)[\"']/
+  },
+  {
+    label: "vendor/spawned/spawned.gemspec",
+    path: File.join(root, "vendor/spawned/spawned.gemspec"),
+    regex: /spec\.version\s*=\s*[\"'](?<v>[^\"']+)[\"']/
+  },
+  {
+    label: "vendor/pdf_to_json/pdf_to_json.gemspec",
+    path: File.join(root, "vendor/pdf_to_json/pdf_to_json.gemspec"),
+    regex: /spec\.version\s*=\s*[\"'](?<v>[^\"']+)[\"']/
+  },
+  {
+    label: "vendor/vector-mcp-gem/vector-mcp.gemspec",
+    path: File.join(root, "vendor/vector-mcp-gem/vector-mcp.gemspec"),
+    regex: /spec\.version\s*=\s*[\"'](?<v>[^\"']+)[\"']/
+  }
+]
+
+failures = []
+
+checks.each do |check|
+  unless File.exist?(check[:path])
+    failures << "missing: #{check[:label]} (#{check[:path]})"
+    next
+  end
+
+  content = File.read(check[:path])
+  match = content.match(check[:regex])
+  unless match
+    failures << "unparseable version: #{check[:label]}"
+    next
+  end
+
+  found = match[:v]
+  next if found == root_version
+
+  failures << "version mismatch: #{check[:label]} expected #{root_version} got #{found}"
+end
+
+submodule_paths = []
+
+if ENV["CHECK_ALL_SUBMODULES"] == "1"
+  submodule_paths = [
+    "reference/markmapper/VERSION",
+    "reference/roxy/VERSION",
+    "references/vector-mcp/VERSION",
+    "vendor/domain_knowledge/VERSION",
+    "vendor/knowledge_artifacts/VERSION",
+    "vendor/leann-gem/VERSION",
+    "vendor/link_less_rails/VERSION",
+    "vendor/marklogic-core/VERSION",
+    "vendor/mcp-culture/VERSION",
+    "vendor/mcp-framework/VERSION",
+    "vendor/mcp-language/VERSION",
+    "vendor/mcp-personality/VERSION",
+    "vendor/mcp-policy/VERSION",
+    "vendor/mcp_ui_rails/VERSION",
+    "vendor/rails-box/VERSION",
+    "vendor/rails-marklogic-tutorial/VERSION",
+    "vendor/ropencode-rails/VERSION"
+  ]
+elsif ENV["SUBMODULE_VERSION_PATHS"]
+  submodule_paths = ENV.fetch("SUBMODULE_VERSION_PATHS").split(",").map(&:strip).reject(&:empty?)
+end
+
+submodule_paths.each do |rel|
+  path = File.join(root, rel)
+  next unless File.exist?(path)
+
+  v = File.read(path).strip
+  next if v == root_version
+
+  failures << "submodule version mismatch: #{rel} expected #{root_version} got #{v}"
+end
+
+unless failures.empty?
+  warn("Version drift detected. Root VERSION=#{root_version}")
+  failures.each { |f| warn("- #{f}") }
+  exit(1)
+end
+
+puts("OK: VERSION=#{root_version}")

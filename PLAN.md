@@ -34,11 +34,11 @@ MarkLogic (Docker / Roxy)
 
 ## 4. Versioning Strategy
 - Semantic versioning
-- All repos aligned
+- Root version is authoritative; bump submodules only when their pointers change
 - VERSION file required
 - Git tags used for releases
 
-Current baseline: **0.1.0**
+Current baseline: **0.4.0**
 
 ## 5. Phased Execution Plan
 

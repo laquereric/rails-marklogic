@@ -331,6 +331,7 @@ cmd_run() {
 cmd_probe() {
   local system_msg=""
   local user_msg=""
+  local output_mode="human"
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -358,9 +359,13 @@ cmd_probe() {
         user_msg=${1#--user=}
         shift
         ;;
+      --json)
+        output_mode="json"
+        shift
+        ;;
       -h|--help)
         cat <<'EOF'
-Usage: llm probe [--system TEXT] [--user TEXT]
+Usage: llm probe [--system TEXT] [--user TEXT] [--json]
 
 Runs a lightweight end-to-end request against the MCP auto provider's configured Ollama model.
 EOF
@@ -392,8 +397,11 @@ EOF
   llm_mcp_assert_ready
   llm_mcp_require_alignment
 
-  echo "Executing MCP probe..."
-  llm_probe_run "$system_msg" "$user_msg"
+  if [ "$output_mode" = "human" ]; then
+    echo "Executing MCP probe..."
+  fi
+
+  llm_probe_run "$system_msg" "$user_msg" "$output_mode"
 }
 
 cmd_help() {
