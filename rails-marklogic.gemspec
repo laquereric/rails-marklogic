@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name          = "rails-marklogic"
   spec.version       = RailsMarklogic::VERSION
   spec.authors       = ["Eric Laquer"]
-  spec.email         = ["LaquerEric@gmail.com"]
+  spec.email         = ["laquereric@gmail.com"]
 
   spec.summary       = "Minimal MarkLogic REST client for Rails"
   spec.description   = "Drop-in MarkLogic integration for any Rails app. " \
