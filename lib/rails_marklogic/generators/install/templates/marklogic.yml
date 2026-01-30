@@ -1,0 +1,19 @@
+default: &default
+  host: <%%= ENV.fetch("MARKLOGIC_HOST", "localhost") %>
+  port: <%%= ENV.fetch("MARKLOGIC_PORT", 8000) %>
+  username: <%%= ENV.fetch("MARKLOGIC_USERNAME", "admin") %>
+  password: <%%= ENV.fetch("MARKLOGIC_PASSWORD", "admin") %>
+  auth: digest
+  timeout: 30
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
+  host: <%%= ENV.fetch("MARKLOGIC_HOST") %>
+  username: <%%= ENV.fetch("MARKLOGIC_USERNAME") %>
+  password: <%%= ENV.fetch("MARKLOGIC_PASSWORD") %>
